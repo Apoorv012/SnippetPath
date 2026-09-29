@@ -1,19 +1,28 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { buildWorkspaceFolder } from './build';
+import { newSnippetCommand } from './newSnippet';
 
 // One set of watchers per workspace folder, keyed by folder.uri.toString().
 const folderWatchers = new Map<string, vscode.Disposable[]>();
 
 let outputChannel: vscode.OutputChannel;
+let extensionContext: vscode.ExtensionContext;
+let hasCheckedScaffold = false;
+
+const SCAFFOLD_DISMISSED_KEY = 'snippetpath.scaffoldPromptDismissed';
 let rebuildTimer: NodeJS.Timeout | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
+  extensionContext = context;
   outputChannel = vscode.window.createOutputChannel('SnippetPath');
   context.subscriptions.push(outputChannel);
 
   context.subscriptions.push(
     vscode.commands.registerCommand('snippetpath.rebuild', () => scheduleRebuild(0))
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand('snippetpath.newSnippet', () => newSnippetCommand(() => scheduleRebuild(0)))
   );
 
   context.subscriptions.push(
@@ -59,11 +68,13 @@ async function rebuildAll(): Promise<void> {
   const folders = vscode.workspace.workspaceFolders ?? [];
   let totalGenerated = 0;
   let totalIssues = 0;
+  let totalSourceFiles = 0;
 
   for (const folder of folders) {
     const result = await buildWorkspaceFolder(folder, outputChannel);
     totalGenerated += result.generatedCount;
     totalIssues += result.issues.length;
+    totalSourceFiles += result.sourceFileCount;
     setupWatchersForFolder(folder, result.templatePaths);
   }
 
@@ -72,8 +83,33 @@ async function rebuildAll(): Promise<void> {
       (totalIssues > 0 ? ` with ${totalIssues} issue(s) — see above.` : '.')
   );
 
+  if (!hasCheckedScaffold && folders.length > 0) {
+    hasCheckedScaffold = true;
+    if (totalSourceFiles === 0) {
+      void offerFirstSnippet();
+    }
+  }
+
   if (totalIssues > 0) {
     vscode.window.setStatusBarMessage(`SnippetPath: ${totalIssues} snippet issue(s), see "SnippetPath" output`, 8000);
+  }
+}
+
+async function offerFirstSnippet(): Promise<void> {
+  if (extensionContext.workspaceState.get<boolean>(SCAFFOLD_DISMISSED_KEY)) {
+    return;
+  }
+  const createLabel = 'Create Snippet';
+  const dismissLabel = "Don't ask again";
+  const choice = await vscode.window.showInformationMessage(
+    'No SnippetPath snippets found in this workspace yet. Create your first one?',
+    createLabel,
+    dismissLabel
+  );
+  if (choice === createLabel) {
+    await vscode.commands.executeCommand('snippetpath.newSnippet');
+  } else if (choice === dismissLabel) {
+    await extensionContext.workspaceState.update(SCAFFOLD_DISMISSED_KEY, true);
   }
 }
 

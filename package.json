@@ -2,17 +2,17 @@
   "name": "snippetpath",
   "displayName": "SnippetPath",
   "description": "Keep VS Code snippet bodies in real template files instead of escaped JSON strings.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "ApoorvMittal",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Apoorv012/SnipTemplate.git"
+    "url": "https://github.com/Apoorv012/SnippetPath.git"
   },
-  "homepage": "https://github.com/Apoorv012/SnipTemplate#readme",
+  "homepage": "https://github.com/Apoorv012/SnippetPath#readme",
   "bugs": {
-    "url": "https://github.com/Apoorv012/SnipTemplate/issues"
+    "url": "https://github.com/Apoorv012/SnippetPath/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -35,6 +35,10 @@
       {
         "command": "snippetpath.rebuild",
         "title": "SnippetPath: Rebuild Snippets"
+      },
+      {
+        "command": "snippetpath.newSnippet",
+        "title": "SnippetPath: Create New Snippet"
       }
     ],
     "configuration": {

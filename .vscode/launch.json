@@ -2,13 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension (example workspace)",
+      "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "${workspaceFolder}/example"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "${workspaceFolder}/${input:workspaceChoice}"],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "prepare-launch"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "workspaceChoice",
+      "type": "pickString",
+      "description": "Which workspace should the Extension Development Host open?",
+      "options": [
+        { "label": "example (has snippets)", "value": "example" },
+        { "label": "empty (fresh folder, tests first-run prompt)", "value": ".sandbox" }
+      ],
+      "default": "example"
     }
   ]
 }
