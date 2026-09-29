@@ -2,9 +2,18 @@
   "name": "snippetpath",
   "displayName": "SnippetPath",
   "description": "Keep VS Code snippet bodies in real template files instead of escaped JSON strings.",
-  "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "version": "0.1.1",
+  "publisher": "ApoorvMittal",
   "license": "MIT",
+  "icon": "assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Apoorv012/SnipTemplate.git"
+  },
+  "homepage": "https://github.com/Apoorv012/SnipTemplate#readme",
+  "bugs": {
+    "url": "https://github.com/Apoorv012/SnipTemplate/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -54,8 +63,8 @@
         },
         "snippetPath.outputDir": {
           "type": "string",
-          "default": ".vscode/snippetpath",
-          "description": "Directory (relative to the workspace folder) where generated .code-snippets files are written. VS Code auto-loads any *.code-snippets file under .vscode."
+          "default": ".vscode",
+          "description": "Directory (relative to the workspace folder) where generated .code-snippets files are written. Must be .vscode itself (or another directory VS Code scans for snippets) — VS Code does not load *.code-snippets files from subdirectories of .vscode."
         }
       }
     }
@@ -68,6 +77,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^4.0.0",
     "typescript": "^5.4.0"
   },
   "dependencies": {

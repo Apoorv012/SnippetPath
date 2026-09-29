@@ -11,6 +11,13 @@
     "bodyPath": "../templates/cpp_segment_tree.cpp",
     "description": "Iterative-build recursive segment tree with point update / range sum query"
   },
+  "C++ Simple": {
+    "prefix": "cppsimple",
+    "scope": "cpp",
+    "bodyPath": "../templates/cpp_simple.cpp",
+    "description": "C++ Boilerplate code for single testcase problems"
+  },
+  
   "Python Main": {
     "prefix": "pymain",
     "scope": "python",

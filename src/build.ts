@@ -18,10 +18,12 @@ export interface BuildResult {
  * against the template file's current contents, and writes one generated
  * `.code-snippets` file per source file into the configured output directory.
  *
- * Output lands under `.vscode/` (by default) because VS Code auto-loads any
- * `*.code-snippets` file it finds there — no extension API is needed at
- * suggest/insert time, so tabstops, placeholders and variables in the
- * template files are rendered by VS Code's own snippet engine.
+ * Output lands directly in `.vscode/` (by default) because VS Code only
+ * auto-loads `*.code-snippets` files it finds directly inside a workspace
+ * folder's `.vscode/` directory — not in any subdirectory of it. No
+ * extension API is needed at suggest/insert time, so tabstops, placeholders
+ * and variables in the template files are rendered by VS Code's own snippet
+ * engine.
  */
 export async function buildWorkspaceFolder(
   folder: vscode.WorkspaceFolder,
@@ -30,7 +32,7 @@ export async function buildWorkspaceFolder(
   const config = vscode.workspace.getConfiguration('snippetPath', folder);
   const sourcePatterns = config.get<string[]>('sources', ['**/*.snippets.json']);
   const excludePatterns = config.get<string[]>('exclude', ['**/node_modules/**', '**/.git/**']);
-  const outputDir = config.get<string>('outputDir', '.vscode/snippetpath');
+  const outputDir = config.get<string>('outputDir', '.vscode');
 
   const outputAbsDir = path.join(folder.uri.fsPath, outputDir);
   const excludeGlob = `{${excludePatterns.join(',')}}`;
@@ -174,7 +176,9 @@ function fileContentToBodyLines(content: string): string[] {
 
 function outputPathFor(sourceFilePath: string, outputAbsDir: string): string {
   const base = path.basename(sourceFilePath).replace(/\.snippets\.json$/, '').replace(/\.json$/, '');
-  return path.join(outputAbsDir, `${base}.code-snippets`);
+  // Prefixed so generated output can't collide with a hand-written .code-snippets
+  // file of the same base name sitting in the same directory (typically .vscode/).
+  return path.join(outputAbsDir, `snippetpath.${base}.code-snippets`);
 }
 
 async function writeGeneratedFile(outputPath: string, sourceFilePath: string, entries: SourceFile): Promise<void> {

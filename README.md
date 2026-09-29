@@ -71,7 +71,7 @@ SnippetPath does the simplest thing that works with VS Code's own machinery:
    referenced template file, and splits it into the line-array form VS Code
    snippet bodies use.
 3. It writes the result as a real, plain `.code-snippets` file into
-   `.vscode/snippetpath/` in your workspace.
+   `.vscode/` (as `snippetpath.*.code-snippets`) in your workspace.
 4. VS Code auto-loads any `*.code-snippets` file under `.vscode/` on its
    own — no API call, no completion provider, nothing SnippetPath has to do
    at suggestion or insertion time. Once the file is generated, expansion is
@@ -99,7 +99,7 @@ rejected for this MVP because:
   through the provider — including tie-breaking with other extensions'
   completion providers, sorting, and non-textmate languages.
 - Generating real snippet files is transparent and debuggable: at any point
-  you can open `.vscode/snippetpath/*.code-snippets` and see exactly what VS
+  you can open `.vscode/snippetpath.*.code-snippets` and see exactly what VS
   Code will insert.
 
 ## Usage
@@ -120,7 +120,7 @@ rejected for this MVP because:
    ```
 
 3. Save it. SnippetPath generates
-   `.vscode/snippetpath/competitive.code-snippets` automatically.
+   `.vscode/snippetpath.competitive.code-snippets` automatically.
 4. Open a `.cpp` file, type `cpp`, accept the suggestion.
 5. Edit `templates/cpp.cpp` any time — the generated snippet updates on
    save, with no reload needed.
@@ -164,7 +164,7 @@ An absolute path in `bodyPath` is used as-is.
 |----------------------------|-------------------------------------------|------------------------------------------------------------------|
 | `snippetPath.sources`      | `["**/*.snippets.json"]`                  | Glob(s), per workspace folder, matching source files            |
 | `snippetPath.exclude`      | `["**/node_modules/**", "**/.git/**"]`    | Glob(s) excluded from the source search                         |
-| `snippetPath.outputDir`    | `.vscode/snippetpath`                     | Where generated `.code-snippets` files are written              |
+| `snippetPath.outputDir`    | `.vscode`                                 | Where generated `.code-snippets` files are written (must be `.vscode` itself — VS Code doesn't scan subdirectories of it) |
 
 ## Snippet variables and placeholders
 
@@ -198,7 +198,7 @@ This is a deliberate scope decision, not an oversight:
   reach outside the workspace at all.
 
 If you want the same templates available globally across projects, put the
-generated `.vscode/snippetpath/*.code-snippets` file's *source* file
+generated `.vscode/snippetpath.*.code-snippets` file's *source* file
 (`*.snippets.json`) in a shared location and symlink or copy it into each
 workspace's source glob for now. Native global-snippet support may be added
 later.
@@ -210,17 +210,17 @@ later.
   template triggers a rebuild of every source file in the workspace. This
   is simple and fast enough for realistic snippet collections (tens to low
   hundreds of entries); it is not designed for huge generated snippet sets.
-- **Generated files are derived output.** Don't hand-edit anything under
-  `.vscode/snippetpath/` — it's overwritten on every rebuild. Edit the
-  source file or the template file instead.
+- **Generated files are derived output.** Don't hand-edit
+  `.vscode/snippetpath.*.code-snippets` — it's overwritten on every rebuild.
+  Edit the source file or the template file instead.
 - **Committing generated files is optional but recommended for teammates
   without the extension.** If a teammate opens the workspace without
-  SnippetPath installed, `.code-snippets` files already committed to
-  `.vscode/snippetpath/` still work (VS Code loads them natively); they
-  just won't stay in sync with template edits until SnippetPath is
-  installed. If you'd rather not commit generated output, gitignore
-  `.vscode/snippetpath/` and require the extension for anyone using the
-  snippets.
+  SnippetPath installed, a `.vscode/snippetpath.*.code-snippets` file already
+  committed to the repo still works (VS Code loads it natively); it just
+  won't stay in sync with template edits until SnippetPath is installed. If
+  you'd rather not commit generated output, gitignore
+  `.vscode/snippetpath.*.code-snippets` and require the extension for anyone
+  using the snippets.
 - **No snippet-body linting.** SnippetPath doesn't validate that your
   template file is well-formed snippet syntax (e.g. balanced `${...}`); a
   malformed template will simply fail to expand the way you expect, the
