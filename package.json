@@ -1,0 +1,76 @@
+{
+  "name": "snippetpath",
+  "displayName": "SnippetPath",
+  "description": "Keep VS Code snippet bodies in real template files instead of escaped JSON strings.",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "snippets",
+    "templates",
+    "boilerplate"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "snippetpath.rebuild",
+        "title": "SnippetPath: Rebuild Snippets"
+      }
+    ],
+    "configuration": {
+      "title": "SnippetPath",
+      "properties": {
+        "snippetPath.sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*.snippets.json"
+          ],
+          "description": "Glob patterns (relative to each workspace folder) matching SnippetPath source files."
+        },
+        "snippetPath.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**"
+          ],
+          "description": "Glob patterns excluded when searching for SnippetPath source files."
+        },
+        "snippetPath.outputDir": {
+          "type": "string",
+          "default": ".vscode/snippetpath",
+          "description": "Directory (relative to the workspace folder) where generated .code-snippets files are written. VS Code auto-loads any *.code-snippets file under .vscode."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.2.1"
+  }
+}

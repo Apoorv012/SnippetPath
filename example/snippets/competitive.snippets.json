@@ -1,0 +1,20 @@
+{
+  "C++ Boilerplate": {
+    "prefix": "cpp",
+    "scope": "cpp",
+    "bodyPath": "../templates/cpp.cpp",
+    "description": "Basic C++ boilerplate code"
+  },
+  "C++ Segment Tree": {
+    "prefix": "segtree",
+    "scope": "cpp",
+    "bodyPath": "../templates/cpp_segment_tree.cpp",
+    "description": "Iterative-build recursive segment tree with point update / range sum query"
+  },
+  "Python Main": {
+    "prefix": "pymain",
+    "scope": "python",
+    "bodyPath": "../templates/python.py",
+    "description": "Python entry point boilerplate"
+  }
+}
