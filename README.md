@@ -104,26 +104,38 @@ rejected for this MVP because:
 
 ## Usage
 
-1. Install the extension.
-2. Create a source file anywhere in your workspace matching
-   `**/*.snippets.json` (e.g. `snippets/competitive.snippets.json`):
+1. Install the extension and open a folder.
+2. Run **SnippetPath: Create New Snippet** from the Command Palette. If your
+   workspace has no snippets yet, SnippetPath offers this automatically the
+   first time you open it.
+3. Answer the short prompts: name, prefix, language, optional description,
+   and where the template file should live (a sensible default is filled in).
+4. The template file opens. Write your snippet body there and save.
+5. Open a file in that language, type the prefix, accept the suggestion.
 
-   ```json
-   {
-     "C++ Boilerplate": {
-       "prefix": "cpp",
-       "scope": "cpp",
-       "bodyPath": "../templates/cpp.cpp",
-       "description": "Basic C++ boilerplate code"
-     }
-   }
-   ```
+SnippetPath creates the folders, the source file and the template file for
+you, and keeps the generated snippet in sync every time you save.
 
-3. Save it. SnippetPath generates
-   `.vscode/snippetpath.competitive.code-snippets` automatically.
-4. Open a `.cpp` file, type `cpp`, accept the suggestion.
-5. Edit `templates/cpp.cpp` any time — the generated snippet updates on
-   save, with no reload needed.
+### Advanced: authoring by hand
+
+The wizard just writes the files below, so you can also create them yourself.
+Create a source file anywhere matching `**/*.snippets.json` (e.g.
+`snippets/competitive.snippets.json`):
+
+```json
+{
+  "C++ Boilerplate": {
+    "prefix": "cpp",
+    "scope": "cpp",
+    "bodyPath": "../templates/cpp.cpp",
+    "description": "Basic C++ boilerplate code"
+  }
+}
+```
+
+Save it and SnippetPath generates
+`.vscode/snippetpath.competitive.code-snippets` automatically. Edit
+`templates/cpp.cpp` any time; the snippet updates on save with no reload.
 
 You can also run **SnippetPath: Rebuild Snippets** from the Command Palette
 to force a full rebuild.

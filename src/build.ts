@@ -11,6 +11,31 @@ export interface BuildResult {
   templatePaths: Set<string>;
   issues: BuildIssue[];
   generatedCount: number;
+  /** Source files matched, even if none of their entries built successfully. */
+  sourceFileCount: number;
+}
+
+/** Finds SnippetPath source files in a workspace folder (excluding our own generated output). */
+export async function findSourceFiles(folder: vscode.WorkspaceFolder): Promise<vscode.Uri[]> {
+  const config = vscode.workspace.getConfiguration('snippetPath', folder);
+  const sourcePatterns = config.get<string[]>('sources', ['**/*.snippets.json']);
+  const excludePatterns = config.get<string[]>('exclude', ['**/node_modules/**', '**/.git/**']);
+  const outputDir = config.get<string>('outputDir', '.vscode');
+
+  const outputAbsDir = path.join(folder.uri.fsPath, outputDir);
+  const excludeGlob = `{${excludePatterns.join(',')}}`;
+
+  const found = new Map<string, vscode.Uri>();
+  for (const pattern of sourcePatterns) {
+    const uris = await vscode.workspace.findFiles(new vscode.RelativePattern(folder, pattern), excludeGlob);
+    for (const uri of uris) {
+      // Never treat our own generated output as a source file.
+      if (!uri.fsPath.startsWith(outputAbsDir + path.sep)) {
+        found.set(uri.fsPath, uri);
+      }
+    }
+  }
+  return [...found.values()];
 }
 
 /**
@@ -30,31 +55,18 @@ export async function buildWorkspaceFolder(
   outputChannel: vscode.OutputChannel
 ): Promise<BuildResult> {
   const config = vscode.workspace.getConfiguration('snippetPath', folder);
-  const sourcePatterns = config.get<string[]>('sources', ['**/*.snippets.json']);
-  const excludePatterns = config.get<string[]>('exclude', ['**/node_modules/**', '**/.git/**']);
   const outputDir = config.get<string>('outputDir', '.vscode');
-
   const outputAbsDir = path.join(folder.uri.fsPath, outputDir);
-  const excludeGlob = `{${excludePatterns.join(',')}}`;
 
   const issues: BuildIssue[] = [];
   const templatePaths = new Set<string>();
   const currentOutputFiles = new Set<string>();
 
-  for (const pattern of sourcePatterns) {
-    const relPattern = new vscode.RelativePattern(folder, pattern);
-    const sourceUris = await vscode.workspace.findFiles(relPattern, excludeGlob);
-
-    for (const sourceUri of sourceUris) {
-      // Never treat our own generated output as a source file.
-      if (sourceUri.fsPath.startsWith(outputAbsDir + path.sep)) {
-        continue;
-      }
-
-      const outputPath = await buildSourceFile(sourceUri, folder, outputAbsDir, templatePaths, issues);
-      if (outputPath) {
-        currentOutputFiles.add(outputPath);
-      }
+  const sourceUris = await findSourceFiles(folder);
+  for (const sourceUri of sourceUris) {
+    const outputPath = await buildSourceFile(sourceUri, folder, outputAbsDir, templatePaths, issues);
+    if (outputPath) {
+      currentOutputFiles.add(outputPath);
     }
   }
 
@@ -67,7 +79,7 @@ export async function buildWorkspaceFolder(
     }
   }
 
-  return { templatePaths, issues, generatedCount: currentOutputFiles.size };
+  return { templatePaths, issues, generatedCount: currentOutputFiles.size, sourceFileCount: sourceUris.length };
 }
 
 async function buildSourceFile(

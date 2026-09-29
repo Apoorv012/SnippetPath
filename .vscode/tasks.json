@@ -7,6 +7,19 @@
       "problemMatcher": "$tsc",
       "presentation": { "reveal": "silent" },
       "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "reset-sandbox",
+      "type": "shell",
+      "command": "node .vscode/reset-sandbox.js",
+      "presentation": { "reveal": "silent" },
+      "problemMatcher": []
+    },
+    {
+      "label": "prepare-launch",
+      "dependsOn": ["npm: compile", "reset-sandbox"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
     }
   ]
 }
